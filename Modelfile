@@ -1,36 +1,40 @@
 # Modelfile pour Melta-82M (Clemylia/LES-IA-ETOILES)
-# Configuration minimaliste, sans balise SYSTEM.
+# Configuration alignée sur le nouveau template de chat.
 
 # --- 1. Chemin du Fichier GGUF ---
-# Remplacez "melta-82m.gguf" par le nom exact de votre fichier GGUF.
+# Utilisation du chemin Hugging Face fourni
 FROM hf.co/Clemylia/Melta-gguf
 
 # --- 2. Paramètres de Génération pour la Cohérence ---
 # Ces paramètres sont cruciaux pour stabiliser votre modèle de 82M.
-
-# TEMPÉRATURE : Un peu de créativité, mais stable
 PARAMETER temperature 0.7 
-
-# TOP_P : Sélection des tokens les plus probables (cohérence)
 PARAMETER top_p 0.95
-
-# TOP_K : Limite de tokens considérés (qualité)
 PARAMETER top_k 30
-
-# RÉPONSE MAXIMALE : Limite la longueur pour éviter les longs délires
 PARAMETER num_predict 500
 
-# --- 3. Template de Prompt (Crucial pour le formatage) ---
-# Ceci force Ollama à utiliser votre template minimaliste '### Question: ... ### Réponse:'
+# --- 3. TEMPLATE DE PROMPT (Aligné Parfaitement) ---
+# Ce template reflète la structure 'Question: ... ### reponse: ... Réponse:'
 TEMPLATE """
+{{- range .Conversations -}}
+{{- range .Messages -}}
+{{- if eq .Role "user" -}}
 Question:
-{{ .Prompt }}
-
+{{ .Content }}
+{{- else if eq .Role "assistant" -}}
+### reponse:
+{{ .Content }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
 Réponse:
 """
 
 # --- 4. Configuration du Tokenizer (Arrêt) ---
 # Ceci est crucial pour empêcher le modèle de générer des boucles infinies ou des parasites.
+# Nous ajoutons les délimiteurs de dialogue utilisés dans le template.
+PARAMETER stop "Question:"
+PARAMETER stop "### reponse:"
+PARAMETER stop "Réponse:"
 PARAMETER stop "</s>"
-PARAMETER stop "</s>"
+PARAMETER stop "</s"
 PARAMETER stop "<|endoftext|>"
