@@ -1,22 +1,25 @@
-# Modelfile pour Clemylia-Melta-LLaMA (82.9M) - CORRIGÉ
+# Modelfile pour Clemylia-Melta-LLaMA (82.9M) - Inspiré du format d'inférence Python
 
 # --- 1. Chemin du Fichier GGUF (À adapter) ---
-FROM hf.co/Clemylia/Melta-gguf
+# Remplacez ceci par le chemin réel de votre fichier GGUF
+FROM placeholder oour le moment 
 
 # --- 2. Paramètres de Génération pour l'Inférénce ---
+# Ajustements pour la stabilité (légèrement plus bas pour un modèle from scratch)
 PARAMETER temperature 0.65 
 PARAMETER top_p 0.9 
 PARAMETER top_k 40 
 PARAMETER num_predict 256
 
-# --- 3. Template de Prompt (CORRIGÉ) ---
-# Utilisation de {{ .Prompt }} pour injecter l'entrée de l'utilisateur.
-TEMPLATE """
-Question: {{ .Prompt }}
-Réponse:
-"""
+# --- 3. Template de Prompt (CORRECTION CRUCIALE) ---
+# Ceci réplique le format de votre script d'inférence Python.
+# L'entrée de l'utilisateur ({{ .Prompt }}) est insérée là où la question se trouve.
+TEMPLATE """Question: {{ .Prompt }}\nRéponse:"""
 
 # --- 4. Configuration du Tokenizer (Arrêt) ---
-PARAMETER stop "</s>"
+# Stoppe la génération dès que le modèle essaie de commencer une nouvelle conversation.
+PARAMETER stop "</s>" 
+PARAMETER stop "Question:" 
+PARAMETER stop "\nRéponse:" # Ajout de ce stop token pour être sûr
 PARAMETER stop "###"
 PARAMETER stop "<|endoftext|>"
